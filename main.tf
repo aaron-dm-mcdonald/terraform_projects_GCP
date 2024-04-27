@@ -9,9 +9,9 @@ terraform {
 
 provider "google" {
   # Configuration options
-  project = "hardy-beach-417021"
+  project = "reliable-vector-421523"
   region = "asia-east2"
   zone = "asia-east2-a"
-  credentials = "hardy-beach-417021-de8136813a47.json"
+  credentials = "reliable-vector-421523-d2cbe344cb8a.json"
 }
 
