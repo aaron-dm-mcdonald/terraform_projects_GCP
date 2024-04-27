@@ -15,32 +15,37 @@ provider "google" {
   credentials = "reliable-vector-421523-d2cbe344cb8a.json"
 }
 
-
-resource "google_storage_bucket" "bucket1" {
-  name          = "dont-copy-this-test-test-test1"
-  storage_class = "STANDARD"
-  location      = "asia-east1"
-  force_destroy = true
-
+variable "num_buckets" {
+  type = number
+  default = 2
 }
 
-resource "google_storage_bucket" "bucket2" {
-  name          = "dont-copy-this-test-test-test2"
-  storage_class = "STANDARD"
-  location      = "asia-east2"
-  force_destroy = true
-
+variable "num_networks" {
+  type = number
+  default = 4
 }
 
+variable "num_subnets" {
+  type = number
+  default = 2
+}
+
+resource "google_storage_bucket" "bucket" {
+  count = var.num_buckets
+  name          = "bucket-a-freaking-unique-name-gd-${count.index}"
+  storage_class = "STANDARD"
+  location      = "asia-east${count.index + 1}"
+  force_destroy = true
+}
 
 resource "google_compute_network" "vpc" {
-  count = 2
+  count = var.num_networks
   name = "vpc-${count.index}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "subnet" {
-  count = 2
+  count = var.num_subnets
   name          = "subnet-${count.index}"
   region        = "asia-east2"
   network       = google_compute_network.vpc[count.index].name
@@ -48,9 +53,12 @@ resource "google_compute_subnetwork" "subnet" {
 }
 
 resource "google_compute_firewall" "allow-http" {
-  count = 2
+  count = var.num_networks
+  network = google_compute_network.vpc[count.index].name 
+  
+  priority = 10000
+  description = "Allow HTTP traffic"
   name        = "allow-http-traffic-${count.index}"
-  network     = google_compute_network.vpc[count.index].name
   allow {
     protocol = "tcp"
     ports    = ["80","443"]
